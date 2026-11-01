@@ -97,7 +97,7 @@ export class SandboxPayPal implements PayPalApi {
       recipientEmail: r?.email_address,
       amount: Number(j.amount?.value ?? item?.unit_amount?.value ?? 0),
       currency: j.amount?.currency_code ?? item?.unit_amount?.currency_code ?? "USD",
-      description: item?.name ?? j.detail?.note ?? "",
+      description: item?.name ?? (j.detail?.memo || ""),
       dueDate: j.detail?.payment_term?.due_date,
       payerViewUrl: j.detail?.metadata?.recipient_view_url,
     };
@@ -117,7 +117,11 @@ export class SandboxPayPal implements PayPalApi {
   async sendInvoice(id: string) { await this.call(`/v2/invoicing/invoices/${id}/send`, "POST", { send_to_invoicer: true }); return this.getInvoice(id); }
   async remindInvoice(id: string) { await this.call(`/v2/invoicing/invoices/${id}/remind`, "POST", { note: "Friendly reminder from ENSIDEX Team" }); return this.getInvoice(id); }
   async getInvoice(id: string) { return this.map(await this.call(`/v2/invoicing/invoices/${id}`)); }
-  async listInvoices() { const j = await this.call("/v2/invoicing/invoices?page_size=50&total_required=true"); return (j.items ?? []).map((x: any) => this.map(x)); }
+  async listInvoices() {
+    const j = await this.call("/v2/invoicing/invoices?page_size=20&total_required=true");
+    // The list endpoint omits line items, so fetch details for item descriptions.
+    return Promise.all((j.items ?? []).map((x: any) => this.getInvoice(x.id).catch(() => this.map(x))));
+  }
   async createPaymentLink(amount: number, currency: string, description: string) {
     const j = await this.call("/v2/checkout/orders", "POST", {
       intent: "CAPTURE",

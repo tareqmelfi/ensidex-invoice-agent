@@ -40,6 +40,10 @@ export async function runAgent(pp: PayPalApi, history: Msg[], opts: { apiKey?: s
         msgs.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify({ error: e.message }) });
       }
     }
+    // Tool output is mostly English; re-anchor the reply language to the user's message.
+    const lastUser = [...history].reverse().find((h) => h.role === "user")?.content ?? "";
+    const ar = /[\u0600-\u06FF]/.test(lastUser);
+    msgs.push({ role: "system", content: `Reply to the user in ${ar ? "Arabic" : "English"} only.` });
   }
   return { reply: "Stopped after too many steps.", actions, engine: "openrouter" };
 }

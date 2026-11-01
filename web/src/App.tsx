@@ -15,7 +15,7 @@ export function App() {
   const [health, setHealth] = useState<{ paypal: string; ai: string }>();
   const end = useRef<HTMLDivElement>(null);
   useEffect(() => { fetch("/api/health").then((r) => r.json()).then(setHealth).catch(() => {}); }, []);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [msgs]);
+  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
 
   async function send(text: string) {
     if (!text.trim() || busy) return;

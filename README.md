@@ -37,6 +37,26 @@ docker run -p 8787:8787 --env-file .env ensidex-invoice-agent
 
 `GET /api/health` shows `paypal: sandbox|mock` and `ai: openrouter|offline`.
 
+### Verified against the real PayPal sandbox
+Tested end to end against `api-m.sandbox.paypal.com` (Invoicing v2 + Orders v2) with an OpenRouter model:
+
+| Prompt | Tools called | Result |
+|---|---|---|
+| "Create an invoice for John Smith … 250 USD for logo design, due 2026-11-30, and send it" | `create_invoice` → `send_invoice` | Invoice in status `SENT` with a payer link |
+| "سو فاتورة لأحمد علي … بمبلغ 500 دولار مقابل استشارة تقنية وأرسلها" | `create_invoice` → `send_invoice` | Arabic reply, invoice `SENT` |
+| "اعرض لي كل الفواتير" | `list_invoices` | Arabic summary of every invoice |
+| "Create a payment link for 40 USD" | `create_payment_link` | Sandbox checkout approval URL |
+
+Run it in sandbox mode:
+```bash
+cp .env.example .env   # fill PAYPAL_CLIENT_ID, PAYPAL_CLIENT_SECRET, OPENROUTER_API_KEY (never commit .env)
+npm install && npm run build && npm start   # http://localhost:8787
+```
+
+## Demo
+- Video: [`docs/demo/demo.mp4`](docs/demo/demo.mp4) (headless browser recording against the real sandbox)
+- Screenshots: [`docs/demo/`](docs/demo/) – home, English invoice, Arabic invoice, Arabic invoice list
+
 ## API
 | Method | Path | Body |
 |---|---|---|
