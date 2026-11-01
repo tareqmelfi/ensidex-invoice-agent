@@ -1,0 +1,11 @@
+*{box-sizing:border-box}body{margin:0;font-family:system-ui,"Segoe UI",Tahoma,sans-serif;background:#d9dbd5}
+.app{max-width:760px;margin:0 auto;height:100vh;display:flex;flex-direction:column;background:#efeae2}
+header{display:flex;gap:12px;align-items:center;padding:10px 16px;background:#075e54;color:#fff}header small{display:block;opacity:.8;font-size:12px}
+.avatar{width:40px;height:40px;border-radius:50%;background:#25d366;display:grid;place-items:center;font-weight:700}
+main{flex:1;overflow:auto;padding:16px;display:flex;flex-direction:column;gap:8px}
+.bubble{max-width:80%;padding:8px 12px;border-radius:10px;white-space:pre-wrap;box-shadow:0 1px 1px #0002}
+.bubble.user{align-self:flex-end;background:#d9fdd3}.bubble.assistant{align-self:flex-start;background:#fff}
+.card{margin-top:6px;padding:6px 8px;border-radius:6px;background:#f0f7ff;font-size:13px;display:flex;gap:8px;flex-wrap:wrap}.card a{color:#0070ba}.err{color:#b00}
+.chips{display:flex;gap:6px;overflow-x:auto;padding:6px 10px}.chips button{white-space:nowrap;border:1px solid #bbb;background:#fff;border-radius:16px;padding:4px 10px;cursor:pointer}
+form{display:flex;gap:8px;padding:10px;background:#f0f0f0}input{flex:1;padding:10px 14px;border-radius:20px;border:none;font-size:15px}
+form button{background:#075e54;color:#fff;border:none;border-radius:20px;padding:0 18px}
