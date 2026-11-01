@@ -1,0 +1,48 @@
+[Script Info]
+ScriptType: v4.00+
+PlayResX: 1920
+PlayResY: 1080
+WrapStyle: 0
+
+[V4+ Styles]
+Format: Name, Fontname, Fontsize, PrimaryColour, SecondaryColour, OutlineColour, BackColour, Bold, Italic, Underline, StrikeOut, ScaleX, ScaleY, Spacing, Angle, BorderStyle, Outline, Shadow, Alignment, MarginL, MarginR, MarginV, Encoding
+Style: Default,Albert Sans,38,&H00FFFFFF,&H00FFFFFF,&H00000000,&H64000000,0,0,0,0,100,100,0,0,1,0,1,2,220,220,34,1
+
+[Events]
+Format: Layer, Start, End, Style, Name, MarginL, MarginR, MarginV, Effect, Text
+Dialogue: 0,0:00:05.05,0:00:07.70,Default,,0,0,0,,Freelancers live in chat, but invoicing
+Dialogue: 0,0:00:07.70,0:00:09.94,Default,,0,0,0,,still means dashboards and forms.
+Dialogue: 0,0:00:09.94,0:00:11.79,Default,,0,0,0,,What if billing were just a message?
+Dialogue: 0,0:00:15.38,0:00:17.70,Default,,0,0,0,,ENSIDEX Invoice Agent is an AI chat
+Dialogue: 0,0:00:17.70,0:00:20.68,Default,,0,0,0,,agent built on the PayPal developer platform.
+Dialogue: 0,0:00:20.68,0:00:23.28,Default,,0,0,0,,In this recording, the AI runs live on
+Dialogue: 0,0:00:23.28,0:00:26.62,Default,,0,0,0,,OpenRouter, and every action hits the real PayPal
+Dialogue: 0,0:00:26.62,0:00:29.15,Default,,0,0,0,,sandbox, exactly as the header shows.
+Dialogue: 0,0:00:30.08,0:00:31.12,Default,,0,0,0,,One sentence.
+Dialogue: 0,0:00:31.12,0:00:34.06,Default,,0,0,0,,The agent picks the client, the amount and the
+Dialogue: 0,0:00:34.06,0:00:37.45,Default,,0,0,0,,purpose, turns "Friday" into a real date, and creates
+Dialogue: 0,0:00:37.45,0:00:40.97,Default,,0,0,0,,and publishes a real PayPal sandbox invoice through the
+Dialogue: 0,0:00:40.97,0:00:43.91,Default,,0,0,0,,Invoicing API, with a link the client can pay.
+Dialogue: 0,0:00:47.08,0:00:48.58,Default,,0,0,0,,It works in Arabic too.
+Dialogue: 0,0:00:48.58,0:00:51.17,Default,,0,0,0,,Riyals, Thursday, and the reply comes
+Dialogue: 0,0:00:51.17,0:00:53.26,Default,,0,0,0,,back in Arabic, right to left.
+Dialogue: 0,0:00:53.26,0:00:56.33,Default,,0,0,0,,PayPal doesn't take riyals, so the agent bills in
+Dialogue: 0,0:00:56.33,0:00:59.35,Default,,0,0,0,,dollars at the fixed peg and shows both amounts.
+Dialogue: 0,0:01:01.08,0:01:02.46,Default,,0,0,0,,Need a one-off payment?
+Dialogue: 0,0:01:02.46,0:01:05.43,Default,,0,0,0,,The payment-link tool uses the PayPal Orders
+Dialogue: 0,0:01:05.43,0:01:07.93,Default,,0,0,0,,API to return a real sandbox checkout
+Dialogue: 0,0:01:07.93,0:01:09.90,Default,,0,0,0,,link, right in the same chat.
+Dialogue: 0,0:01:11.58,0:01:13.87,Default,,0,0,0,,Ask for a summary, and the AI reads
+Dialogue: 0,0:01:13.87,0:01:17.74,Default,,0,0,0,,your live invoices, totals what's outstanding per currency,
+Dialogue: 0,0:01:17.74,0:01:21.27,Default,,0,0,0,,and flags what's overdue, like Omar's October invoice.
+Dialogue: 0,0:01:26.24,0:01:28.10,Default,,0,0,0,,One more message, and the agent
+Dialogue: 0,0:01:28.10,0:01:29.96,Default,,0,0,0,,sends a PayPal reminder for it.
+Dialogue: 0,0:01:37.88,0:01:41.63,Default,,0,0,0,,Under the hood: Hono on Node 22, React 19,
+Dialogue: 0,0:01:41.63,0:01:46.90,Default,,0,0,0,,OpenRouter tool calling, PayPal Invoicing v2 and Orders v2.
+Dialogue: 0,0:01:46.90,0:01:49.22,Default,,0,0,0,,An offline parser and a mock PayPal
+Dialogue: 0,0:01:49.22,0:01:51.62,Default,,0,0,0,,mean anyone can run it without keys,
+Dialogue: 0,0:01:51.62,0:01:53.35,Default,,0,0,0,,and the test suite passes.
+Dialogue: 0,0:01:56.12,0:01:57.97,Default,,0,0,0,,Open source under MIT, and
+Dialogue: 0,0:01:57.97,0:01:59.82,Default,,0,0,0,,one Docker command to run.
+Dialogue: 0,0:01:59.82,0:02:01.69,Default,,0,0,0,,ENSIDEX Invoice Agent.
+Dialogue: 0,0:02:01.69,0:02:03.74,Default,,0,0,0,,Say who owes you, and get paid.

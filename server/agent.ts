@@ -1,5 +1,5 @@
 import type { PayPalApi } from "./paypal.js";
-import { runTool, toolSchemas } from "./tools.js";
+import { formatTotals, runTool, toolSchemas } from "./tools.js";
 
 export type Msg = { role: "system" | "user" | "assistant" | "tool"; content: string | null; tool_calls?: any[]; tool_call_id?: string };
 export interface AgentReply { reply: string; actions: { tool: string; args: unknown; result: unknown; error?: string }[]; engine: "openrouter" | "offline" }
@@ -8,8 +8,8 @@ const calendar = (today: string) => Array.from({ length: 8 }, (_, i) => { const 
 const sys = (today: string) => `You are ENSIDEX Invoice Agent, a billing assistant for freelancers and small businesses. Today is ${today}. Next days: ${calendar(today)} (use this table for weekday names; "next/الجاي" = next occurrence).
 ALWAYS reply in the same language as the user's latest message (English in -> English out; Arabic in -> Arabic out).
 Turn requests (Arabic or English) into PayPal actions using the tools. Resolve relative dates ("Friday", "الخميس الجاي") to YYYY-MM-DD.
-If an essential field (amount, client name, what it's for) is missing, ask one short question. Default currency USD; "ريال" means SAR. Email is optional — never ask for it. Do not ask for confirmation when amount, client and purpose are present: act.
-After tools run, confirm briefly in the user's language, with invoice id, amount, status and link. For summaries of unpaid invoices, group by status, total the outstanding amount, flag overdue ones, and suggest reminders.`;
+If an essential field (amount, client name, what it's for) is missing, ask one short question. Default currency USD; "ريال" means SAR (pass currency "SAR"; the tool converts it to USD at the 3.75 peg because PayPal does not support SAR — mention both amounts in the reply). Email is optional — never ask for it. Do not ask for confirmation when amount, client and purpose are present: act.
+After tools run, confirm briefly in the user's language, with invoice id, amount, status and link. For summaries of unpaid invoices use the list_invoices result: report unpaidTotalsByCurrency and overdueTotalsByCurrency exactly as given (one total per currency, e.g. "300 USD + 500 SAR"; NEVER add different currencies together or convert), flag overdueIds as overdue, and suggest reminders. Keep replies short; light Markdown (bold, bullet lists, links) is fine.`;
 
 export async function runAgent(pp: PayPalApi, history: Msg[], opts: { apiKey?: string; model?: string; today?: string; fetchImpl?: typeof fetch } = {}): Promise<AgentReply> {
   const today = opts.today ?? new Date().toISOString().slice(0, 10);
@@ -32,7 +32,7 @@ export async function runAgent(pp: PayPalApi, history: Msg[], opts: { apiKey?: s
       let args: any = {};
       try { args = JSON.parse(tc.function.arguments || "{}"); } catch {}
       try {
-        const result = await runTool(pp, tc.function.name, args);
+        const result = await runTool(pp, tc.function.name, args, today);
         actions.push({ tool: tc.function.name, args, result });
         msgs.push({ role: "tool", tool_call_id: tc.id, content: JSON.stringify(result) });
       } catch (e: any) {
@@ -89,7 +89,7 @@ async function offlineAgent(pp: PayPalApi, history: Msg[], today: string): Promi
   const text = [...history].reverse().find((m) => m.role === "user")?.content ?? "";
   const ar = /[\u0600-\u06FF]/.test(text);
   const actions: AgentReply["actions"] = [];
-  const act = async (tool: string, args: any) => { const result: any = await runTool(pp, tool, args); actions.push({ tool, args, result }); return result; };
+  const act = async (tool: string, args: any) => { const result: any = await runTool(pp, tool, args, today); actions.push({ tool, args, result }); return result; };
   const id = text.match(/INV2-[\w-]+/i)?.[0];
   try {
     if (/remind|ذكر|تذكير/i.test(text) && id) {
@@ -101,14 +101,13 @@ async function offlineAgent(pp: PayPalApi, history: Msg[], today: string): Promi
       return { reply: `${r.id}: ${r.status} — ${r.amount} ${r.currency}`, actions, engine: "offline" };
     }
     if (/unpaid|summary|outstanding|ملخص|غير مدفوع|ما انسدد|متأخر/i.test(text)) {
-      const list: any[] = await act("list_invoices", {});
-      const open = list.filter((i) => !["PAID", "CANCELLED", "MARKED_AS_PAID"].includes(i.status));
-      const total = open.reduce((s, i) => s + i.amount, 0);
-      const overdue = open.filter((i) => i.dueDate && i.dueDate < today);
-      const lines = open.map((i) => `• ${i.id} — ${i.recipientName} — ${i.amount} ${i.currency} — ${i.status}${i.dueDate ? ` (due ${i.dueDate})` : ""}`).join("\n");
+      const sum: any = await act("list_invoices", {});
+      const open = sum.invoices.filter((i: any) => sum.overdueIds.includes(i.id) || (!["PAID", "CANCELLED", "MARKED_AS_PAID", "DRAFT"].includes(i.status)));
+      const total = formatTotals(sum.unpaidTotalsByCurrency);
+      const lines = open.map((i: any) => `- ${i.id} — ${i.recipientName} — ${i.amount} ${i.currency} — ${i.status}${i.dueDate ? ` (due ${i.dueDate})` : ""}${i.overdue ? " ⚠️ overdue" : ""}`).join("\n");
       return { reply: ar
-        ? `عندك ${open.length} فاتورة غير مدفوعة بإجمالي ${total}. المتأخر: ${overdue.length}.\n${lines}`
-        : `You have ${open.length} unpaid invoice(s) totalling ${total}. Overdue: ${overdue.length}.\n${lines}`, actions, engine: "offline" };
+        ? `عندك ${sum.unpaidCount} فاتورة غير مدفوعة بإجمالي ${total}. المتأخر: ${sum.overdueCount}.\n${lines}`
+        : `You have ${sum.unpaidCount} unpaid invoice(s) totalling ${total}. Overdue: ${sum.overdueCount}.\n${lines}`, actions, engine: "offline" };
     }
     const wantsLink = /payment link|pay link|رابط دفع/i.test(text);
     if (wantsLink) {
@@ -122,8 +121,8 @@ async function offlineAgent(pp: PayPalApi, history: Msg[], today: string): Promi
     if (!p) return { reply: ar ? "مين العميل، وكم المبلغ، وعن وش الفاتورة؟" : "Who is the client, how much, and what is it for?", actions, engine: "offline" };
     const r = await act("create_invoice", { ...p, send: true });
     return { reply: ar
-      ? `تم إنشاء الفاتورة ${r.id} لـ ${r.recipientName} بمبلغ ${r.amount} ${r.currency}${r.dueDate ? `، تستحق ${r.dueDate}` : ""}. الحالة: ${r.status}.`
-      : `Invoice ${r.id} for ${r.recipientName}: ${r.amount} ${r.currency}${r.dueDate ? `, due ${r.dueDate}` : ""}. Status: ${r.status}.`, actions, engine: "offline" };
+      ? `تم إنشاء الفاتورة ${r.id} لـ ${r.recipientName} بمبلغ ${r.originalAmount ? `${r.originalAmount} ${r.originalCurrency} (${r.amount} ${r.currency})` : `${r.amount} ${r.currency}`}${r.dueDate ? `، تستحق ${r.dueDate}` : ""}. الحالة: ${r.status}.`
+      : `Invoice ${r.id} for ${r.recipientName}: ${r.originalAmount ? `${r.originalAmount} ${r.originalCurrency} (${r.amount} ${r.currency})` : `${r.amount} ${r.currency}`}${r.dueDate ? `, due ${r.dueDate}` : ""}. Status: ${r.status}.`, actions, engine: "offline" };
   } catch (e: any) {
     return { reply: `Error: ${e.message}`, actions, engine: "offline" };
   }

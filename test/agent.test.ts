@@ -55,3 +55,16 @@ describe("HTTP API", () => {
     expect((await res.json()).actions.length).toBe(1);
   });
 });
+
+import { summarizeInvoices } from "../server/tools";
+describe("unpaid summary", () => {
+  it("totals per currency and flags overdue", () => {
+    const s = summarizeInvoices([
+      { id: "A", status: "SENT", recipientName: "a", amount: 300, currency: "USD", description: "x", dueDate: "2026-10-15" },
+      { id: "B", status: "UNPAID", recipientName: "b", amount: 500, currency: "SAR", description: "y", dueDate: "2026-11-30" },
+      { id: "C", status: "PAID", recipientName: "c", amount: 99, currency: "USD", description: "z" },
+    ], "2026-11-01");
+    expect(s.unpaidTotalsByCurrency).toEqual({ USD: 300, SAR: 500 });
+    expect(s.overdueIds).toEqual(["A"]);
+  });
+});

@@ -1,0 +1,31 @@
+ENSIDEX Invoice Agent: demo voice-over (English)
+Video: docs/demo/demo-final.mp4 (2:03.6, 1920x1080, 30 fps)
+Voice: Microsoft Edge neural TTS (edge-tts), en-US-AndrewNeural
+Recording mode, as /api/health reported it: PayPal: mock · AI: openrouter (openai/gpt-4o-mini)
+
+[0:00–0:14.5] Title card, then a fictional client chat
+Freelancers live in chat, but invoicing still means dashboards and forms. What if billing were just a message?
+
+[0:14.5–0:29.5] App home at localhost:8787 with the header status highlighted
+ENSIDEX Invoice Agent is an AI chat agent built on the PayPal developer platform. In this recording, the AI runs live on OpenRouter, and PayPal runs in the app's built-in mock mode, exactly as the header shows.
+
+[0:29.5–0:46.5] English invoice
+One sentence. The agent picks the client, the amount and the purpose, turns "Friday" into a real date, and calls its create-invoice tool. With sandbox credentials set, that tool creates and sends a PayPal invoice through the Invoicing API.
+
+[0:46.5–0:59] Arabic invoice (RTL)
+It works in Arabic too. Riyals, Thursday, and the reply comes back in Arabic, right to left. Thursday becomes November fifth, and the currency is set to Saudi riyals.
+
+[0:59–1:09.5] Payment link
+Need a one-off payment? The payment-link tool uses the PayPal Orders API to return a checkout link, right in the same chat.
+
+[1:09.5–1:31] Unpaid summary and reminder
+Ask for a summary, and the AI reads your invoices, lists what's outstanding, and flags what's overdue. Here, Omar's invoice from October is flagged.
+One more message, and the agent calls its reminder tool for that invoice.
+
+[1:31–1:49.5] Code (server/tools.ts), architecture diagram, npm test
+Under the hood: Hono on Node 22, React 19, OpenRouter tool calling, PayPal Invoicing v2 and Orders v2. An offline parser and a mock PayPal mean anyone can run it, and the test suite passes.
+
+[1:49.5–2:03.6] Docker command, then the end card
+Open source under MIT, and one Docker command to run. ENSIDEX Invoice Agent. Say who owes you, and get paid.
+
+ENSIDEX Team

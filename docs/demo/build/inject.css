@@ -1,0 +1,6 @@
+html{zoom:1.45}
+body,input,button{font-family:"Albert Sans","Vazirmatn",sans-serif !important}
+[dir=auto]:lang(ar), .bubble{font-family:"Albert Sans","Vazirmatn",sans-serif}
+.app{height:calc(100vh / 1.45) !important;max-width:900px}
+body{background:#cfd3cc}
+header small{font-size:14px !important}

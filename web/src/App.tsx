@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Markdown } from "./md";
 
 type Msg = { role: "user" | "assistant"; content: string; actions?: any[] };
 const samples = [
@@ -36,7 +37,7 @@ export function App() {
       <main>
         {msgs.map((m, i) => (
           <div key={i} className={`bubble ${m.role}`} dir="auto">
-            <div className="text">{m.content}</div>
+            <div className="text">{m.role === "assistant" ? <Markdown text={m.content} /> : m.content}</div>
             {m.actions?.map((a, k) => (
               <div key={k} className="card">
                 <code>{a.tool}</code>{a.error ? <span className="err"> {a.error}</span> : null}

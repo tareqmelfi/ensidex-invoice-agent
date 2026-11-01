@@ -114,7 +114,13 @@ export class SandboxPayPal implements PayPalApi {
     });
     return this.map(j.id ? j : await this.call(j.href ? new URL(j.href).pathname : ""));
   }
-  async sendInvoice(id: string) { await this.call(`/v2/invoicing/invoices/${id}/send`, "POST", { send_to_invoicer: true }); return this.getInvoice(id); }
+  async sendInvoice(id: string) {
+    // PayPal rejects emailing an invoice with no recipient email (MISSING_RECIPIENT_EMAIL);
+    // in that case publish it as a shareable payer link instead.
+    const cur = await this.getInvoice(id);
+    await this.call(`/v2/invoicing/invoices/${id}/send`, "POST", cur.recipientEmail ? { send_to_invoicer: true } : { send_to_recipient: false, send_to_invoicer: false });
+    return this.getInvoice(id);
+  }
   async remindInvoice(id: string) { await this.call(`/v2/invoicing/invoices/${id}/remind`, "POST", { note: "Friendly reminder from ENSIDEX Team" }); return this.getInvoice(id); }
   async getInvoice(id: string) { return this.map(await this.call(`/v2/invoicing/invoices/${id}`)); }
   async listInvoices() {

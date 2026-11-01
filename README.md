@@ -11,7 +11,13 @@ Built by **ENSIDEX Team** for the PayPal AI Hackathon.
 - LLM tool calling via OpenRouter → PayPal **Invoicing API v2** (create, send, remind, status, list)
 - PayPal **Orders API v2** one-off payment links
 - AI summary of outstanding / overdue invoices with suggested reminders
+- Unpaid summaries are computed server-side **per currency** (never mixes USD with other currencies) with overdue flags
+- Chat replies render Markdown (bold, lists, links)
 - Works with zero credentials: deterministic offline parser + in-memory mock PayPal for demos and CI
+
+### Currency and delivery notes
+- PayPal does not support **SAR**. Amounts in riyals ("ريال") are converted to USD at the fixed peg **3.75 SAR/USD** (AED at 3.6725); the invoice line shows the original SAR amount and the reply shows both.
+- If no client email is given, the invoice is published as a **shareable payer link** (PayPal status `UNPAID`) instead of being emailed. PayPal reminders need a client email on the invoice.
 
 ## Quick start
 ```bash
@@ -23,7 +29,7 @@ npm start                   # http://localhost:8787
 ```
 Dev mode: `npm run dev:server` and `npm run dev:web` (Vite on :5173 proxies `/api`).
 
-### Docker
+### Docker (Dockerfile included; not yet build-tested in CI)
 ```bash
 docker build -t ensidex-invoice-agent .
 docker run -p 8787:8787 --env-file .env ensidex-invoice-agent
@@ -46,6 +52,9 @@ Tested end to end against `api-m.sandbox.paypal.com` (Invoicing v2 + Orders v2) 
 | "سو فاتورة لأحمد علي … بمبلغ 500 دولار مقابل استشارة تقنية وأرسلها" | `create_invoice` → `send_invoice` | Arabic reply, invoice `SENT` |
 | "اعرض لي كل الفواتير" | `list_invoices` | Arabic summary of every invoice |
 | "Create a payment link for 40 USD" | `create_payment_link` | Sandbox checkout approval URL |
+| "سوّ فاتورة لسارة 500 ريال … تستحق الخميس" | `create_invoice` | 133.33 USD invoice (500 SAR at the peg), payer link |
+| "Summarize my unpaid invoices" | `list_invoices` | Per-currency unpaid + overdue totals, overdue invoice flagged |
+| "Send a reminder for Omar Haddad's overdue invoice" | `remind_invoice` | PayPal reminder sent |
 
 Run it in sandbox mode:
 ```bash
@@ -54,7 +63,8 @@ npm install && npm run build && npm start   # http://localhost:8787
 ```
 
 ## Demo
-- Video: [`docs/demo/demo.mp4`](docs/demo/demo.mp4) (headless browser recording against the real sandbox)
+- Narrated video (~2 min, English VO + captions): [`docs/demo/demo-final.mp4`](docs/demo/demo-final.mp4), recorded live against the **real PayPal sandbox** with OpenRouter (header shows `PayPal: sandbox · AI: openrouter`). Script: [`docs/demo/voiceover.txt`](docs/demo/voiceover.txt); build scripts in `docs/demo/build/`.
+- Earlier cuts: `docs/demo/demo.mp4` (silent sandbox recording), `docs/demo/demo-final-mock.mp4` (narrated, mock PayPal)
 - Screenshots: [`docs/demo/`](docs/demo/) – home, English invoice, Arabic invoice, Arabic invoice list
 
 ## API
@@ -66,7 +76,7 @@ npm install && npm run build && npm start   # http://localhost:8787
 
 ## Tests
 `npm test` covers date resolution (EN/AR), parsing, the offline agent end-to-end on the mock,
-the OpenRouter tool-calling loop (mocked fetch) and the HTTP API.
+the OpenRouter tool-calling loop (mocked fetch), the HTTP API and per-currency unpaid totals.
 
 ## Architecture
 See [docs/architecture.md](docs/architecture.md).

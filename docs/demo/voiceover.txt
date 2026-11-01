@@ -1,0 +1,15 @@
+ENSIDEX Invoice Agent: demo voice-over (English)
+Video: docs/demo/demo-final.mp4 (2:09.6, 1920x1080, 30 fps), burned-in English captions
+Voice: Microsoft Edge neural TTS (edge-tts), en-US-AndrewNeural
+Recording mode, as /api/health reported it: PayPal: sandbox (api-m.sandbox.paypal.com) · AI: openrouter (openai/gpt-4o-mini)
+Previous mock-mode cut kept as demo-final-mock.mp4
+
+Freelancers live in chat, but invoicing still means dashboards and forms. What if billing were just a message?
+ENSIDEX Invoice Agent is an AI chat agent built on the PayPal developer platform. In this recording, the AI runs live on OpenRouter, and every action hits the real PayPal sandbox, exactly as the header shows.
+One sentence. The agent picks the client, the amount and the purpose, turns "Friday" into a real date, and creates and publishes a real PayPal sandbox invoice through the Invoicing API, with a link the client can pay.
+It works in Arabic too. Riyals, Thursday, and the reply comes back in Arabic, right to left. PayPal doesn't take riyals, so the agent bills in dollars at the fixed peg and shows both amounts.
+Need a one-off payment? The payment-link tool uses the PayPal Orders API to return a real sandbox checkout link, right in the same chat.
+Ask for a summary, and the AI reads your live invoices, totals what's outstanding per currency, and flags what's overdue, like Omar's October invoice.
+One more message, and the agent sends a PayPal reminder for it.
+Under the hood: Hono on Node 22, React 19, OpenRouter tool calling, PayPal Invoicing v2 and Orders v2. An offline parser and a mock PayPal mean anyone can run it without keys, and the test suite passes.
+Open source under MIT, and one Docker command to run. ENSIDEX Invoice Agent. Say who owes you, and get paid.
